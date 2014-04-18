@@ -5,7 +5,7 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Wed Apr 16 13:45:55 2014 Mehdi Chouag
-** Last update Thu Apr 17 19:04:30 2014 ribeaud antonin
+** Last update Fri Apr 18 17:32:15 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -38,7 +38,7 @@ void			my_sighandler(int num)
 void			init_server(t_server *s, char *port)
 {
   int			opt;
-  
+
   opt = 1;
   s->serverfd = xsocket(PF_INET, SOCK_STREAM, 0);
   setsockopt(s->serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -57,7 +57,8 @@ int			loop(t_server *s, char *str)
 
   g_fd = NULL;
   init_server(s, str);
-  add_in_list(&g_fd, s, xaccept(s->serverfd, &(s->client_sin), &(s->client_len)));
+  add_in_list(&g_fd, s, xaccept(s->serverfd,
+				&(s->client_sin), &(s->client_len)));
   tv.tv_usec = 100;
   ret = 0;
   while (ret != -1)

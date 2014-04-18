@@ -5,7 +5,7 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Wed Apr 16 22:48:35 2014 ribeaud antonin
-** Last update Thu Apr 17 22:51:11 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:01:12 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -87,7 +87,7 @@ void		sort_chan(t_fd *fd, t_fd *cur, char *find)
   sprintf(buff, "<strong>%s", find);
   while (tmp != NULL)
     {
-      if (strcmp("none", tmp->channel) != 0 
+      if (strcmp("none", tmp->channel) != 0
 	  && !found_chan(tab, tmp->channel)
 	  && strncmp(buff, tmp->channel, strlen(buff)) == 0)
 	tab[++i] = strdup(tmp->channel);

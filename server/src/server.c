@@ -5,7 +5,7 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Sat Apr 12 17:25:09 2014 Mehdi Chouag
-** Last update Thu Apr 17 21:40:29 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:29:18 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -14,7 +14,7 @@ void		read_client(char *buff, t_fd *fd, t_fd *cur)
 {
   t_fd		*tmp2;
   char		to_send[4096];
-  
+
   tmp2 = fd;
   if (!strcmp(cur->channel, "none"))
     send(cur->fd, ERR_CHAN, strlen(ERR_CHAN), 0);
@@ -60,9 +60,9 @@ int		check_command(char *buff, t_fd *cur, t_fd *all)
   return (i);
 }
 
-void			set_all_fd(t_fd *fd, t_server *s)
+void		set_all_fd(t_fd *fd, t_server *s)
 {
-  t_fd			*tmp;
+  t_fd		*tmp;
 
   tmp = fd;
   while (tmp != NULL)
@@ -72,10 +72,10 @@ void			set_all_fd(t_fd *fd, t_server *s)
     }
 }
 
-int			main(int argc, char **argv)
+int		main(int argc, char **argv)
 {
-  t_server		s;
-  
+  t_server	s;
+
   if (argc == 2)
     {
       signal(SIGINT, my_sighandler);

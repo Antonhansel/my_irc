@@ -5,7 +5,7 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Wed Apr 16 13:55:07 2014 Mehdi Chouag
-** Last update Thu Apr 17 20:03:49 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:34:27 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -43,7 +43,7 @@ void		msg(char **cmd, t_fd *fd, t_fd *cur)
 	{
 	  if (strcmp(tmp->nickname, temp) == 0)
 	    {
-	      send_private(cur, tmp,cmd);
+	      send_private(cur, tmp, cmd);
 	      is_exist = 1;
 	    }
 	  tmp = tmp->next;
@@ -87,7 +87,8 @@ void		aff_chan(t_fd *fd, t_fd *cur)
   tab = settab(fd);
   while (tmp != NULL)
     {
-      if (strcmp("none", tmp->channel) != 0 
+      if (tmp->channel != NULL &&
+	  strcmp("none", tmp->channel) != 0
 	  && !found_chan(tab, tmp->channel))
 	tab[++i] = strdup(tmp->channel);
       tmp = tmp->next;

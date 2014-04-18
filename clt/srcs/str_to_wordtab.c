@@ -5,13 +5,13 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Mon Apr 14 21:32:52 2014 ribeaud antonin
-** Last update Thu Apr 17 22:17:32 2014 ribeaud antonin
+** Last update Fri Apr 18 17:49:57 2014 ribeaud antonin
 */
 
-#include "Client.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "Client.h"
 
 int	word_count(char *str, char delim)
 {
@@ -49,7 +49,8 @@ char	**my_str_to_wordtab2(char *str, char delim, char **tab)
           c = i;
           while (str[i] != delim && str[i] != '\t' && str[i] != '\0')
             i = i + 1;
-          if ((tab[word] = (char *)malloc((i - c + 1) * sizeof(**tab))) == NULL)
+          if ((tab[word] = (char *)
+		 malloc((i - c + 1) * sizeof(**tab))) == NULL)
             exit (1);
           strncpy(tab[word], &str[c], i - c);
           word = word + 1;
@@ -65,7 +66,7 @@ char	**my_str_to_wordtab(char *str, char delim)
 {
   char	**tab;
 
-  if ((tab = (char **)malloc((word_count(str, delim) + 1) 
+  if ((tab = (char **)malloc((word_count(str, delim) + 1)
 			     * sizeof(*tab))) == NULL)
     exit (1);
   return (my_str_to_wordtab2(str, delim, tab));

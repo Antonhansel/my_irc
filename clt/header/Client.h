@@ -5,7 +5,7 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Mon Apr 14 18:10:09 2014 ribeaud antonin
-** Last update Thu Apr 17 14:10:14 2014 ribeaud antonin
+** Last update Fri Apr 18 17:40:24 2014 ribeaud antonin
 */
 
 #ifndef _CLIENT_H_
@@ -44,7 +44,7 @@ typedef	struct		s_local
 /** xfuncs **/
 int	xbind(int, struct sockaddr_in *, socklen_t);
 int	xsocket(int, int, int);
-int	xaccept(int, struct sockaddr_in *,socklen_t *);
+int	xaccept(int, struct sockaddr_in *, socklen_t *);
 int	xlisten(int, int);
 int	xconnect(int, struct sockaddr_in *, socklen_t);
 /** Client.c **/

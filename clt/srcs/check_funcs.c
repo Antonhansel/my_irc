@@ -5,7 +5,7 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Wed Apr 16 18:55:18 2014 ribeaud antonin
-** Last update Thu Apr 17 22:20:23 2014 ribeaud antonin
+** Last update Fri Apr 18 17:55:16 2014 ribeaud antonin
 */
 
 #include "Client.h"
@@ -31,15 +31,15 @@ char	*verifySyntax(char const *input, char *command)
   tab = my_str_to_wordtab((char*)input, ' ');
   if (strlen(command) > 7)
     return ((char*)"-<strong>[Error]: </strong>Command not implemented yet");
-  if (strcmp(command, "/nick") == 0 || strcmp(command, "/part") == 0 
+  if (strcmp(command, "/nick") == 0 || strcmp(command, "/part") == 0
       || strcmp(command, "/join") == 0 || strcmp(command, "/msg") == 0)
     {
       if (tab[1] == NULL)
 	return ((char*)"-<strong>[Error]:</strong>Command needs argument");
-      if (strcmp(command, "/nick") == 0 && (strlen(tab[1]) > 9 
+      if (strcmp(command, "/nick") == 0 && (strlen(tab[1]) > 9
 			 || check_char(tab[1], (char*)"-<>/\\") != 0))
 	return ((char*)"-<strong>[Error]:</strong>Wrong nickname syntax!");
-      if (strcmp(command, "/msg") == 0 && (strlen(tab[1]) > 9 
+      if (strcmp(command, "/msg") == 0 && (strlen(tab[1]) > 9
 					   || tab[2] == NULL))
 	return ((char*)"-<strong>[Error]:</strong>No msg specified!");
     }
@@ -51,7 +51,7 @@ char	*realIp(char *input)
   int	i;
   int	j;
   char	test[20];
-  
+
   i = 0;
   j = 0;
   memset(test, 0, sizeof(test));
@@ -71,7 +71,7 @@ int	check_char(char const *input, char *str)
 {
   int	i;
   int	j;
-  
+
   i = 0;
   while (input[i] != '\0')
     {

@@ -5,13 +5,13 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Sat Apr 12 17:32:13 2014 Mehdi Chouag
-** Last update Thu Apr 17 22:29:19 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:39:41 2014 ribeaud antonin
 */
 
 #ifndef SERVER_H_
 # define SERVER_H_
 
-# include <sys/types.h> 
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
@@ -56,42 +56,42 @@ typedef struct		s_fd
   struct s_fd		*next;
 }			t_fd;
 
-void			init_server(t_server *s, char *port);
-int			xbind(int sockfd, struct sockaddr_in *addr, socklen_t addrlen);
-int			xsocket(int domain, int type, int protocol);
-int			xaccept(int sockfd, struct sockaddr_in *addr ,socklen_t *len);
-int			xlisten(int sockfd, int backlog);
-void			*xmalloc(size_t size);
-void			xfree(void *ptr);
-ssize_t			xrecvserver(int sockclient, t_server *s);
-int			xsendserver(int sockserver, char *buf, t_server *s);
-char			**my_str_to_wordtab(char*, char);
-void			my_free_wordtab(char **cmd);
-void			add_in_list(t_fd **front_ptr, t_server *s, int newfd);
-int			get_max_fd(t_fd *fd);
-void			init_server(t_server *s, char *port);
-int			loop(t_server *s, char *str);
-int			all_list(char *buff);
-int			cur_list(char *buff);
-void			check_current(char *cmd, char *params,t_fd *fd, t_fd *all);
-void			check_list(char **cmd, t_fd *fd, t_fd *cur);
-int			check_command(char *buff, t_fd *cur, t_fd *all);
-void			join(char *cmd, t_fd *fd, t_fd *all);
-void			part(char *cmd, t_fd *fd, t_fd *all);
-void			nick(char *cmd, t_fd *fd, t_fd *all);
-void			list(char **cmd, t_fd *fd, t_fd *cur);
-void			users(char **cmd, t_fd *fd, t_fd *cur);
-t_fd			*linked_list(t_server *s, t_fd *fd);
-void			set_all_fd(t_fd *fd, t_server *s);
-void			my_sighandler(int num);
-void			read_client(char *buff, t_fd *fd, t_fd *cur);
-void			msg(char **cmd, t_fd *fd, t_fd *cur);
-void			send_private(t_fd *fd, t_fd *cur, char **cmd);
-void			my_sighandler(int num);
-void			aff_chan(t_fd *fd, t_fd *cur);
-int			get_list_size(t_fd *fd);
-int			found_chan(char **cmd, char *channel);
-char			**settab(t_fd *fd);
-void			sort_chan(t_fd *fd, t_fd *cur, char *find);
+void	init_server(t_server *, char *);
+int	xbind(int, struct sockaddr_in *, socklen_t);
+int	xsocket(int, int, int);
+int	xaccept(int, struct sockaddr_in *, socklen_t *);
+int	xlisten(int, int);
+void	*xmalloc(size_t);
+void	xfree(void *);
+ssize_t	xrecvserver(int, t_server *);
+int	xsendserver(int, char *, t_server *);
+char	**my_str_to_wordtab(char*, char);
+void	my_free_wordtab(char **);
+void	add_in_list(t_fd **, t_server *, int);
+int	get_max_fd(t_fd *);
+void	init_server(t_server *, char *);
+int	loop(t_server *, char *);
+int	all_list(char *);
+int	cur_list(char *);
+void	check_current(char *, char *, t_fd *, t_fd *);
+void	check_list(char **, t_fd *, t_fd *);
+int	check_command(char *, t_fd *, t_fd *);
+void	join(char *, t_fd *, t_fd *);
+void	part(char *, t_fd *, t_fd *);
+void	nick(char *, t_fd *, t_fd *);
+void	list(char **, t_fd *, t_fd *);
+void	users(char **, t_fd *, t_fd *);
+t_fd	*linked_list(t_server *, t_fd *);
+void	set_all_fd(t_fd *, t_server *);
+void	my_sighandler(int);
+void	read_client(char *, t_fd *, t_fd *);
+void	msg(char **, t_fd *, t_fd *);
+void	send_private(t_fd *, t_fd *, char **);
+void	my_sighandler(int);
+void	aff_chan(t_fd *, t_fd *);
+int	get_list_size(t_fd *);
+int	found_chan(char **, char *);
+char	**settab(t_fd *);
+void	sort_chan(t_fd *, t_fd *, char *);
 
 #endif /* !SERVER_H_ */

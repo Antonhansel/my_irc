@@ -5,13 +5,13 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Mon Apr 14 18:25:45 2014 ribeaud antonin
-** Last update Thu Apr 17 15:17:03 2014 ribeaud antonin
+** Last update Fri Apr 18 17:57:03 2014 ribeaud antonin
 */
 
-#include "Client.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include "Client.h"
 
 t_local		g_local;
 t_client	g_client;
@@ -24,12 +24,12 @@ void		endConnection()
 int		xsend(const char *buf)
 {
   int		ret;
-  
+
   ret = -1;
   if (g_client.connected == 1)
     {
       ret = sendto(g_client.fd, buf, strlen(buf), 0,
-		   (struct sockaddr *)&(g_client.sin), 
+		   (struct sockaddr *)&(g_client.sin),
 		   (socklen_t)sizeof(g_client.sin));
       if (ret == -1)
 	{
@@ -47,7 +47,7 @@ char			*xrecieve()
   socklen_t		len;
   char			buff[4096];
   struct timeval	tv;
-  
+
   if (g_client.connected == 1)
     {
       len = (socklen_t)sizeof(g_client.sin);
@@ -59,7 +59,7 @@ char			*xrecieve()
       if (ret >= 0)
 	{
 	  if (FD_ISSET(g_client.fd, &fdset))
-	    { 
+	    {
 	      ret = recvfrom(g_client.fd, buff, sizeof(buff), 0,
 			     (struct sockaddr *)&(g_client.sin), &len);
 	      if (ret == -1)

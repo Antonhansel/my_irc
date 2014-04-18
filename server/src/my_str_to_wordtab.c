@@ -5,7 +5,7 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Mon Apr  7 18:11:27 2014 Mehdi Chouag
-** Last update Wed Apr 16 20:25:39 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:33:01 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -52,7 +52,7 @@ char		**my_str_to_wordtab(char *str, char c)
     {
       while (str[count] == c)
 	count++;
-      result[i] = malloc(my_strnlen(&str[count], c) + 1);
+      result[i] = xmalloc(my_strnlen(&str[count], c) + 1);
       j = -1;
       while (str[count] != c && str[count] != 0 && str[count] != '\n')
 	{

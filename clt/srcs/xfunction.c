@@ -5,11 +5,11 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Wed Mar 26 18:15:05 2014 Mehdi Chouag
-** Last update Thu Apr 17 22:19:58 2014 ribeaud antonin
+** Last update Fri Apr 18 17:51:21 2014 ribeaud antonin
 */
 
-#include "Client.h"
 #include <stdlib.h>
+#include "Client.h"
 
 int	xbind(int sockfd, struct sockaddr_in *addr, socklen_t addrlen)
 {
@@ -29,7 +29,7 @@ int	xsocket(int domain, int type, int protocol)
   return (fd);
 }
 
-int	xaccept(int sockfd, struct sockaddr_in *addr ,socklen_t *len)
+int	xaccept(int sockfd, struct sockaddr_in *addr, socklen_t *len)
 {
   int	ret;
 

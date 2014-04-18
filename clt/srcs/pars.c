@@ -5,18 +5,18 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Tue Apr 15 11:34:57 2014 ribeaud antonin
-** Last update Thu Apr 17 16:59:38 2014 ribeaud antonin
+** Last update Fri Apr 18 17:56:14 2014 ribeaud antonin
 */
 
-#include "Client.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "Client.h"
 
 char	*get_infos(t_client *clt, char const *input)
 {
   char	**tab;
   char	**tab2;
-  
+
   tab = my_str_to_wordtab((char*)input, ' ');
   if (tab[1] == NULL || strlen(tab[1]) > 26)
     return ((char*)"-<strong>[Error]: </strong>must specify an address");

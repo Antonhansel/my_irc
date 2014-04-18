@@ -5,7 +5,7 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Thu Apr 10 00:34:32 2014 Mehdi Chouag
-** Last update Thu Apr 17 19:07:44 2014 ribeaud antonin
+** Last update Fri Apr 18 17:33:55 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -32,7 +32,7 @@ int     get_list_size(t_fd *fd)
 {
   t_fd	*tmp;
   int	i;
-  
+
   i = 0;
   tmp = fd;
   while (tmp != NULL)

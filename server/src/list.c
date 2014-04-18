@@ -5,7 +5,7 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Wed Apr 16 22:47:37 2014 ribeaud antonin
-** Last update Thu Apr 17 22:09:27 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:31:38 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -79,14 +79,14 @@ void		get_next(t_fd *fd, t_fd **tmp, t_fd **prev)
       (*prev) = (*tmp);
       (*tmp) = (*tmp)->next;
     }
-} 
+}
 
 t_fd		*linked_list(t_server *s, t_fd *fd)
 {
   t_fd		*tmp;
   t_fd		*prev;
   char		buff[4096];
-  
+
   tmp = fd;
   prev = NULL;
   while (tmp != NULL && fd != NULL)

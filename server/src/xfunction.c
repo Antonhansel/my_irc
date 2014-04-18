@@ -5,7 +5,7 @@
 ** Login   <chouag_m@epitech.net>
 ** 
 ** Started on  Wed Mar 26 18:15:05 2014 Mehdi Chouag
-** Last update Wed Apr 16 20:25:00 2014 Mehdi Chouag
+** Last update Fri Apr 18 17:30:00 2014 ribeaud antonin
 */
 
 #include "server.h"
@@ -37,7 +37,7 @@ int	xsocket(int domain, int type, int protocol)
   return (fd);
 }
 
-int	xaccept(int sockfd, struct sockaddr_in *addr ,socklen_t *len)
+int	xaccept(int sockfd, struct sockaddr_in *addr, socklen_t *len)
 {
   int	ret;
 
