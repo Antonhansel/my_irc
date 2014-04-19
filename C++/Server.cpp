@@ -1,0 +1,275 @@
+//
+// Server.cpp for Server.cpp in /home/chouag_m/perso/my_irc/C++
+// 
+// Made by Mehdi Chouag
+// Login   <chouag_m@epitech.net>
+// 
+// Started on  Fri Apr 18 18:14:36 2014 Mehdi Chouag
+// Last update Sat Apr 19 02:11:04 2014 Mehdi Chouag
+//
+
+#include "Server.hh"
+
+Server::Server()
+{
+  _option.push_back("/join");
+  _option.push_back("/part");
+  _option.push_back("/users");
+  _option.push_back("/list");
+  _option.push_back("/nick");
+  _option.push_back("/msg");
+  _ptr[JOIN] = &Server::join;
+  _ptr[PART] = &Server::part;
+  _ptr[USERS] = &Server::users;
+  _ptr[LIST] = &Server::list;
+  _ptr[NICK] = &Server::nick;
+  _ptr[MSG] = &Server::msg;
+  _count = 0;
+  initServer();
+}
+
+Server::~Server()
+{
+}
+
+void		Server::initServer()
+{
+  int		opt;
+
+  opt = 1;
+  _serverfd = socket(PF_INET, SOCK_STREAM, 0);
+  setsockopt(_serverfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+  _sin.sin_family = AF_INET;
+  _sin.sin_port = htons(6667);
+  _sin.sin_addr.s_addr = INADDR_ANY;
+  bind(_serverfd, (struct sockaddr *)&(_sin), (socklen_t)sizeof(_sin));
+  listen(_serverfd, 10);
+  _client_len = sizeof(_client_sin);
+  _tv.tv_usec = 100;
+}
+
+t_server	Server::addClient()
+{
+  t_server		s;
+  std::ostringstream    number;
+
+  number << _count;
+  s.channel = "none";
+  s.nickname = "<em>Anonymous" + number.str() + "</em>";
+  s.nick = "Anonymous" + number.str();
+  s.isClose = false;
+  s.fd = accept(_serverfd, (struct sockaddr *)&(_client_sin), &(_client_len));
+  std::cout << "\033[32;1mNew Connection from : " 
+	    << inet_ntoa(_client_sin.sin_addr);
+  std::cout << " as " << s.nick << "\033[0m"<< std::endl;
+  _count++;
+  return (s);
+}
+
+void		Server::setAllFd()
+{
+  std::vector<t_server>::iterator it;
+
+  for (it = _server.begin(); it != _server.end(); ++it)
+    FD_SET((*it).fd, &(_readfd));
+}
+
+int		Server::getMaxFd()
+{
+  std::vector<t_server>::iterator it;
+  int		sock(0);
+
+  for (it = _server.begin(); it != _server.end(); ++it)
+    if ((*it).fd > sock)
+      sock = (*it).fd;
+  return (sock + 1);
+}
+
+void		Server::deleteFd(bool del)
+{
+  std::vector<t_server>::iterator it;
+  std::vector<t_server> tmp;
+  t_server	s;
+
+  if (del)
+    {
+      for (it = _server.begin(); it != _server.end(); ++it)
+	{
+	  if (!(*it).isClose)
+	  tmp.push_back(*it);
+	else
+	  s = (*it);
+	}
+      if (_server.size() != tmp.size())
+	std::cout << "\033[31;1m" << s.nick << " has left the server\033[0m" << std::endl; 
+      _server = tmp;
+    }
+}
+
+void		Server::join(std::string &buff, t_server &s)
+{
+  std::string	tmp;
+
+  tmp = buff.substr(6, buff.size());
+  tmp = tmp.substr(0, tmp.find_first_of(" "));
+  if (tmp.empty())
+    send(s.fd, ERR_CHAN, strlen(ERR_CHAN), 0);
+  else if (buff.size() > 6 + tmp.size())
+    send(s.fd, "<strong>[admin] : Too many argument</strong>", 44, 0);
+  else
+    {
+      tmp = tmp.substr(0, tmp.find_first_of("\n"));
+      if (tmp.size() <= 9)
+	{
+	  tmp = "<strong>" + tmp + "</strong>";
+	  s.channel = tmp;
+	  send(s.fd, UP_CHAN, strlen(UP_CHAN), 0);
+	}
+      else
+	send(s.fd, ERR_JOINSIZE, strlen(ERR_JOINSIZE), 0);
+    }
+}
+
+void		Server::part(std::string &buff, t_server &s)
+{
+  (void)s;
+  std::cout << "PART : " << buff << std::endl;
+}
+
+void		Server::users(std::string &buff, t_server &s)
+{
+  std::string   tmp;
+  std::vector<t_server>::iterator it;
+
+  (void)s;
+  (void)buff;
+  for (it = _server.begin(); it != _server.end(); ++it)
+    if (s.channel == (*it).channel)
+      tmp += " " + (*it).nickname;
+  if (_server.size() > 0)
+    send(s.fd, tmp.c_str(), tmp.size(), 0);
+}
+
+void		Server::list(std::string &buff, t_server &s)
+{
+  (void)s;
+  std::cout << "LIST : " << buff << std::endl;
+}
+
+void		Server::nick(std::string &buff, t_server &s)
+{
+  std::string	tmp;
+  bool		exist(false);
+  std::vector<t_server>::const_iterator it;
+  size_t        size;
+  
+  tmp = buff.substr(6, buff.size());
+  tmp = tmp.substr(0, tmp.find_first_of(" "));
+  if (tmp.empty() || buff.size() > 6 + tmp.size())
+    send(s.fd, ERR_NICK, strlen(ERR_NICK), 0);
+  else
+    {
+      tmp = tmp.substr(0, tmp.find_first_of("\n"));
+      size = tmp.size();
+      s.nick = tmp;
+      tmp = "<em>" + tmp + "</em>";
+      std::cout << tmp << std::endl;
+      for (it = _server.begin(); it != _server.end(); ++it)
+	if ((*it).nickname == tmp)
+	  exist = true;
+      if (!exist && size <= 9)
+	{
+	  s.nickname = tmp;
+	  send(s.fd, UP_NICK, strlen(UP_NICK), 0);
+	}
+      else if (size > 9)
+	send(s.fd, ERR_NICK, strlen(ERR_NICK), 0);
+      else
+	send(s.fd, ERR_NICKUSED, strlen(ERR_NICKUSED), 0);
+    }
+}
+
+void		Server::msg(std::string &buff, t_server &s)
+{
+  (void)s;
+  std::cout << "MSG : " << buff << std::endl;
+}
+
+
+bool		Server::checkCommand(std::string buff, t_server &s)
+{
+  bool		find(false);
+  size_t	funct(0);
+
+  for (size_t i(0); i != _option.size(); i++)
+    if (buff.find(_option[i]) <= buff.size())
+      if (buff.substr(0, _option[i].size()) == _option[i])
+	{
+	  find = true;
+	  funct = i;
+	  break;
+	}
+  if (find)
+    (this->*_ptr[funct])(buff, s);
+  else if (buff[0] == '/')
+    {
+      send(s.fd, ERR_CMD, strlen(ERR_CMD), 0);
+      return (true);
+    }
+  return (find);
+}	
+
+void		Server::readClient()
+{
+  std::string	msg;
+  char		buff[4096];
+  bool		del(false);
+  
+  for (size_t i(0); i != _server.size(); i++)
+    if (FD_ISSET(_server[i].fd, &(_readfd)))
+      {
+	memset(buff, 0, sizeof(buff));
+	if ((int)recv(_server[i].fd, buff, 4096, 0) == 0)
+	  {
+	    _server[i].isClose = true;
+	    del = true;
+	  }
+	else if(!checkCommand(static_cast<std::string>(buff), _server[i]))
+	  sendMessage(static_cast<std::string>(buff), _server[i]);
+      }
+  deleteFd(del);
+}
+
+void		Server::sendMessage(std::string buff, t_server &s)
+{
+  std::vector<t_server>::iterator it;
+  
+  buff = s.nickname + ": " + buff;
+  if (s.channel == "none")
+    send(s.fd, ERR_CHAN, strlen(ERR_CHAN), 0);
+  else
+    for (it = _server.begin(); it != _server.end(); ++it)
+      if ((*it).channel == s.channel)
+	send((*it).fd, buff.c_str(), buff.size(), 0);
+}
+
+void		Server::loop()
+{
+  int		ret;
+
+  _server.push_back(addClient());
+  ret = 0;
+  while (ret != -1)
+    {
+      FD_ZERO(&_readfd);
+      FD_SET(_serverfd, &(_readfd));
+      setAllFd();
+      ret = select(getMaxFd(), &(_readfd), NULL, NULL, &(_tv));
+      if (FD_ISSET(_serverfd, &(_readfd)) && ret != -1)
+	_server.push_back(addClient());
+      else
+	readClient();
+      usleep(1000);
+    }
+  std::cout << "Exiting the Loop" << std::endl;
+}
