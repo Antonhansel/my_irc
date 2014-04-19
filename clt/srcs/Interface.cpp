@@ -5,7 +5,7 @@
 // Login   <ribeau_a@epitech.net>
 // 
 // Started on  Sat Apr 12 17:29:26 2014 ribeaud antonin
-// Last update Fri Apr 18 18:19:13 2014 ribeaud antonin
+// Last update Thu Apr 17 19:45:10 2014 ribeaud antonin
 //
 
 #include "Interface.hpp"
@@ -58,17 +58,14 @@ void	Client::getInput2(QString input)
 
 int		Client::browser(QString input)
 {
-  QString	test;
   QStringList	list;
   
-  test = "https://intra.epitech.eu/user/";
   list = input.split(" ");
-  if (list[0] == "/intra")
+  if (list[0] == "/web")
     {
       if (list.size() > 1)
 	{
-	  test += list[1];
-	  QDesktopServices::openUrl(QUrl(test));
+	  QDesktopServices::openUrl(QUrl(list[1]));
 	  return (1);
 	}
     }
