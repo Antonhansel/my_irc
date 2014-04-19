@@ -5,16 +5,17 @@
 ## Login   <aube_a@epitech.net>
 ## 
 ## Started on  Tue Mar 18 23:25:23 2014 Mehdi Chouag
-## Last update Sat Apr 19 16:51:10 2014 Mehdi Chouag
+## Last update Sat Apr 19 19:34:19 2014 Mehdi Chouag
 ##
 
 SRCS		= main.cpp \
 		  Server.cpp \
 		  function.cpp \
+		  sha512/sha512.cpp
 
 OBJ2		= $(SRCS:.cpp=.o)
 
-CPPFLAGS	= -W -Wall -Wextra -Werror
+CPPFLAGS	= -W -Wall -Wextra -Werror -I ./sha512
 
 NAMES		= serveur
 

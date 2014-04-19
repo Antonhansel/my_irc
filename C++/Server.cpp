@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:14:36 2014 Mehdi Chouag
-// Last update Sat Apr 19 18:42:17 2014 Mehdi Chouag
+// Last update Sat Apr 19 22:28:33 2014 Mehdi Chouag
 //
 
 #include "Server.hh"
@@ -18,12 +18,14 @@ Server::Server()
   _option.push_back("/list");
   _option.push_back("/nick");
   _option.push_back("/msg");
+  _option.push_back("/login");
   _ptr[JOIN] = &Server::join;
   _ptr[PART] = &Server::part;
   _ptr[USERS] = &Server::users;
   _ptr[LIST] = &Server::list;
   _ptr[NICK] = &Server::nick;
   _ptr[MSG] = &Server::msg;
+  _ptr[LOGIN] = &Server::login;
   _count = 0;
   initServer();
 }
@@ -62,7 +64,7 @@ t_server	Server::addClient()
   s.fd = accept(_serverfd, (struct sockaddr *)&(_client_sin), &(_client_len));
   std::cout << "\033[32;1mNew Connection from : " 
 	    << inet_ntoa(_client_sin.sin_addr);
-  std::cout << " as " << s.nick << "\033[0m"<< std::endl;
+  std::cout << " as " << s.nick << "\033[0m" << std::endl;
   _count++;
   return (s);
 }
@@ -86,27 +88,6 @@ int		Server::getMaxFd()
   return (sock + 1);
 }
 
-void		Server::deleteFd(bool del)
-{
-  std::vector<t_server>::iterator it;
-  std::vector<t_server> tmp;
-  t_server	s;
-
-  if (del)
-    {
-      for (it = _server.begin(); it != _server.end(); ++it)
-	{
-	  if (!(*it).isClose)
-	  tmp.push_back(*it);
-	else
-	  s = (*it);
-	}
-      if (_server.size() != tmp.size())
-	std::cout << "\033[31;1m" << s.nick << " has left the server\033[0m" << std::endl; 
-      _server = tmp;
-    }
-}
-
 void		Server::join(std::string &buff, t_server &s)
 {
   std::string	tmp;
@@ -122,6 +103,8 @@ void		Server::join(std::string &buff, t_server &s)
       tmp = tmp.substr(0, tmp.find_first_of("\n"));
       if (tmp.size() <= 9)
 	{
+	  std::cout << "\033[32;1m" << s.nick << " just change his channel to ";
+	  std::cout << tmp << "\033[0m" << std::endl;
 	  tmp = "<strong>" + tmp + "</strong>";
 	  s.channel = tmp;
 	  send(s.fd, UP_CHAN, strlen(UP_CHAN), 0);
@@ -134,6 +117,7 @@ void		Server::join(std::string &buff, t_server &s)
 void		Server::part(std::string &buff, t_server &s)
 {
   std::string	tmp;
+  std::string   prev;
 
   tmp = buff.substr(6, buff.size());
   tmp = tmp.substr(0, tmp.find_first_of(" "));
@@ -144,8 +128,11 @@ void		Server::part(std::string &buff, t_server &s)
   else
     {
       tmp = tmp.substr(0, tmp.find_first_of("\n"));
+      prev = tmp;
       if (s.channel == ("<strong>" + tmp + "</strong>"))
 	{
+	  std::cout << "\033[32;1m" << s.nick << " just leave ";
+	  std::cout << prev << "\033[0m" << std::endl;
 	  tmp = "none";
 	  s.channel = tmp;
 	  send(s.fd, UP_PART, strlen(UP_PART), 0);
@@ -160,10 +147,15 @@ void		Server::users(std::string &buff, t_server &s)
   std::string   tmp;
   std::vector<t_server>::iterator it;
 
-  (void)s;
   (void)buff;
-  for (it = _server.begin(); it != _server.end(); ++it)
-    if (s.channel == (*it).channel && (*it).channel != "none")
+  if (!s.isAdmin)
+    {
+      for (it = _server.begin(); it != _server.end(); ++it)
+	if (s.channel == (*it).channel && (*it).channel != "none")
+	  tmp += " " + (*it).nickname;
+    }
+  else
+    for (it = _server.begin(); it != _server.end(); ++it)
       tmp += " " + (*it).nickname;
   if (_server.size() > 0)
     send(s.fd, tmp.c_str(), tmp.size(), 0);
@@ -175,9 +167,9 @@ void		Server::list(std::string &buff, t_server &s)
   
   tmp = buff.substr(6, buff.size());
   tmp = tmp.substr(0, tmp.find_first_of(" "));
-  if (tmp.empty())
+  if (tmp.empty() && buff.size() == 6)
     sendAllList(tmp, false, s);
-  else if (buff.size() > 6 + tmp.size())
+  else if (buff.size() > 6 + tmp.size() || (tmp.empty() && buff.size() == 6))
     send(s.fd, "<strong>[admin] : Too many argument</strong>", 44, 0);
   else
     sendAllList(tmp, true, s);
@@ -185,9 +177,11 @@ void		Server::list(std::string &buff, t_server &s)
 
 void		Server::nick(std::string &buff, t_server &s)
 {
+  std::string   prev;
   std::string	tmp;
   bool		exist(false);
   std::vector<t_server>::const_iterator it;
+  
 
   tmp = buff.substr(6, buff.size());
   tmp = tmp.substr(0, tmp.find_first_of(" "));
@@ -196,19 +190,22 @@ void		Server::nick(std::string &buff, t_server &s)
   else
     {
       tmp = tmp.substr(0, tmp.find_first_of("\n"));
-      s.nick = tmp;
-      tmp = "<em>" + tmp + "</em>";
-      std::cout << tmp << std::endl;
+      prev = s.nick;
       for (it = _server.begin(); it != _server.end(); ++it)
-	if ((*it).nickname == tmp)
-	  exist = true;
-      if (!exist && s.nick.size() <= 9)
+	if ((*it).nick == tmp || tmp == "chouag_m")
+	  exist = true;      
+      if (!exist && tmp.size() <= 9 && !s.isAdmin)
 	{
-	  s.nickname = tmp;
+	  std::cout << "\033[32;1m" << s.nick << " has setup his nickname to ";
+	  std::cout << tmp << "\033[0m" << std::endl;
+	  s.nick = tmp;
+	  s.nickname = "<em>" + tmp + "</em>";;
 	  send(s.fd, UP_NICK, strlen(UP_NICK), 0);
 	}
       else if (s.nick.size() > 9)
 	send(s.fd, ERR_NICK, strlen(ERR_NICK), 0);
+      else if (s.isAdmin)
+	send(s.fd, ERR_ADMINNICK, strlen(ERR_ADMINNICK), 0);
       else
 	send(s.fd, ERR_NICKUSED, strlen(ERR_NICKUSED), 0);
     }
@@ -264,6 +261,30 @@ bool		Server::checkCommand(std::string buff, t_server &s)
   return (find);
 }	
 
+void		Server::deleteFd(bool del)
+{
+  std::vector<t_server>::iterator it;
+  std::vector<t_server> tmp;
+  t_server	s;
+
+  if (del)
+    {
+      for (it = _server.begin(); it != _server.end(); ++it)
+	{
+	  if (!(*it).isClose)
+	    tmp.push_back(*it);
+	  else
+	    s = (*it);
+	}
+      if (_server.size() != tmp.size())
+	{
+	  std::cout << "\033[31;1m" << s.nick << " has left the server\033[0m" << std::endl;
+	  close(s.fd);
+	}
+      _server = tmp;
+    }
+}
+
 void		Server::readClient()
 {
   std::string	msg;
@@ -279,8 +300,8 @@ void		Server::readClient()
 	    _server[i].isClose = true;
 	    del = true;
 	  }
-	else if(!checkCommand(static_cast<std::string>(buff), _server[i]))
-	  sendMessage(static_cast<std::string>(buff), _server[i]);
+	else if(!checkCommand(std::string(buff), _server[i]))
+	  sendMessage(std::string(buff), _server[i]);
       }
   deleteFd(del);
 }
@@ -309,7 +330,8 @@ void		Server::loop()
       FD_ZERO(&_readfd);
       FD_SET(_serverfd, &(_readfd));
       setAllFd();
-      ret = select(getMaxFd(), &(_readfd), NULL, NULL, &(_tv));
+      if (_server.size() > 0)
+	ret = select(getMaxFd(), &(_readfd), NULL, NULL, &(_tv));
       if (FD_ISSET(_serverfd, &(_readfd)) && ret != -1)
 	_server.push_back(addClient());
       else
