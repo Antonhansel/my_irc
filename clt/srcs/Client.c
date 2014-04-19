@@ -5,7 +5,7 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Mon Apr 14 18:25:45 2014 ribeaud antonin
-** Last update Sat Apr 19 19:45:00 2014 Mehdi Chouag
+** Last update Sat Apr 19 23:26:36 2014 Mehdi Chouag
 */
 
 #include <stdlib.h>
@@ -87,8 +87,10 @@ void		initStruct()
   g_local.commands[6] = strdup("/send_file");
   g_local.commands[7] = strdup("/accept_file");
   g_local.commands[8] = strdup("/msg");
-  g_local.commands[8] = strdup("/login");
-  g_local.commands[10] = '\0';
+  g_local.commands[9] = strdup("/login");
+  g_local.commands[10] = strdup("/kick");
+  g_local.commands[11] = strdup("/logout");
+  g_local.commands[12] = '\0';
   g_client.connected = 0;
 }
 

@@ -5,7 +5,7 @@
 ** Login   <ribeau_a@epitech.net>
 ** 
 ** Started on  Mon Apr 14 18:10:09 2014 ribeaud antonin
-** Last update Sat Apr 19 19:44:06 2014 Mehdi Chouag
+** Last update Sat Apr 19 23:26:48 2014 Mehdi Chouag
 */
 
 #ifndef _CLIENT_H_
@@ -38,7 +38,7 @@ typedef struct		s_client
 typedef	struct		s_local
 {
   char			*message;
-  char			*commands[11];
+  char			*commands[13];
 }			t_local;
 
 /** xfuncs **/

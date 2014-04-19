@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:14:36 2014 Mehdi Chouag
-// Last update Sat Apr 19 22:28:33 2014 Mehdi Chouag
+// Last update Sat Apr 19 23:59:54 2014 Mehdi Chouag
 //
 
 #include "Server.hh"
@@ -19,6 +19,8 @@ Server::Server()
   _option.push_back("/nick");
   _option.push_back("/msg");
   _option.push_back("/login");
+  _option.push_back("/kick");
+  _option.push_back("/logout");
   _ptr[JOIN] = &Server::join;
   _ptr[PART] = &Server::part;
   _ptr[USERS] = &Server::users;
@@ -26,6 +28,8 @@ Server::Server()
   _ptr[NICK] = &Server::nick;
   _ptr[MSG] = &Server::msg;
   _ptr[LOGIN] = &Server::login;
+  _ptr[KICK] = &Server::kick;
+  _ptr[LOGOUT] = &Server::logout;
   _count = 0;
   initServer();
 }
@@ -222,7 +226,9 @@ void		Server::msg(std::string &buff, t_server &s)
   message = nickname.substr(nickname.find_first_of(" ") + 1, std::string::npos);
   nickname = nickname.substr(0, nickname.find_first_of(" "));
   nickname = "<em>" + nickname + "</em>";
-  if (nickname.empty() || message.empty())
+  if (nickname.empty() || message.empty() ||
+      nickname.size() == 1 || message.size() == 1 ||
+      nickname == message)
     send(s.fd, ERR_MSG, strlen(ERR_MSG), 0);
   else
     {
@@ -247,8 +253,18 @@ bool		Server::checkCommand(std::string buff, t_server &s)
     if (buff.find(_option[i]) <= buff.size())
       if (buff.substr(0, _option[i].size()) == _option[i])
 	{
-	  find = true;
-	  funct = i;
+	  if ((_option[i] == "/kick" || _option[i] == "/logout") && s.isAdmin)
+	    {
+	      find = true;
+	      funct = i;
+	    }
+	  else if (_option[i] != "/kick" && _option[i] != "/logout")
+	    {
+	      find = true;
+	      funct = i;
+	    }
+	  else
+	    find = false;
 	  break;
 	}
   if (find)

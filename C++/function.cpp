@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Sat Apr 19 16:43:54 2014 Mehdi Chouag
-// Last update Sat Apr 19 22:14:10 2014 Mehdi Chouag
+// Last update Sun Apr 20 00:00:28 2014 Mehdi Chouag
 //
 
 #include "Server.hh"
@@ -65,6 +65,8 @@ void	Server::findUser(std::string &username, std::string &password, t_server &s)
   password = sha512(password); 
   if (!file)
     send(s.fd, ERR_LOGINOPEN, strlen(ERR_LOGINOPEN), 0);
+  else if (s.isAdmin)
+    send(s.fd, ERR_ADMINNICK, strlen(ERR_ADMINNICK), 0);
   else
     {
       while (std::getline(file, tmp))
@@ -80,10 +82,72 @@ void	Server::findUser(std::string &username, std::string &password, t_server &s)
 	  send(s.fd, UP_LOGIN, strlen(UP_LOGIN), 0);
 	  s.nickname = "<strong>" + username + "</strong>";
 	  s.nick = username;
-	  std::cout << "\033[32;1mThe admin " << s.nick << " just logging";
+	  std::cout << "\033[32;1mThe admin " << s.nick << " just logged in";
 	  std::cout << "\033[0m" << std::endl;
 	}
       else
 	send(s.fd, ERR_LOGINFAIL, strlen(ERR_LOGINFAIL), 0);
     }
+}
+
+void	Server::kick(std::string &buff, t_server &s)
+{
+  std::string   username;
+  std::string	message;
+  bool		isKicked(false);
+
+  username = buff.substr(6, buff.size());
+  message = username.substr(username.find_first_of(" ") + 1, std::string::npos);
+  username = username.substr(0, username.find_first_of(" "));
+  if (username.empty() || username.size() == 1 ||
+      message.size() == 1 || message.empty() ||
+      username == message)
+    send(s.fd, ERR_ADMINKICK, strlen(ERR_ADMINKICK), 0);
+  else
+    {
+      for (size_t i(0); i != _server.size(); i++)
+	if (_server[i].nick == username)
+	  {
+	    std::cout << "\033[31;1m" << _server[i].nick << " has been kicked by ";
+	    std::cout << s.nick << "\033[0m" << std::endl;
+	    message = s.nickname + "<strong>has kicked you because : " 
+	      + message + "<strong>"; 
+	    send(_server[i].fd, message.c_str(), message.size(), 0);
+	    _server[i].isClose = true;
+	    isKicked = true;
+	  }
+      if (isKicked)
+	send(s.fd, UP_ADMINKICK, strlen(UP_ADMINKICK), 0);
+      else
+	send(s.fd, ERR_ADMINUSER, strlen(ERR_ADMINUSER), 0);
+    }
+  deleteFd(isKicked);
+}
+
+void	Server::logout(std::string &buff, t_server &s)
+{
+  (void)buff;
+  std::ostringstream    number;
+
+  number << _count;
+  std::cout << "\033[31;1mThe admin " << s.nick << " just logged out";
+  std::cout << "\033[0m" << std::endl;
+  s.nickname = "<em>Anonymous" + number.str() + "</em>";
+  s.nick = "Anonymous" + number.str();
+  s.isAdmin = false;
+  send(s.fd, UP_LOGOUT, strlen(UP_LOGOUT), 0);
+}
+
+void		Server::deleteAllFd()
+{
+  std::vector<t_server>::iterator it;
+  
+  for (it = _server.begin(); it != _server.end(); ++it)
+    close((*it).fd);
+}
+
+
+void	Server::closeServerFd(void)
+{
+  close(_serverfd);
 }

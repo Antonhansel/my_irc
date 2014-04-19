@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:22:06 2014 Mehdi Chouag
-// Last update Sat Apr 19 21:39:41 2014 Mehdi Chouag
+// Last update Sun Apr 20 00:08:03 2014 Mehdi Chouag
 //
 
 #ifndef SERVER_HH_
@@ -32,6 +32,7 @@
 # include <sstream>
 # include <fstream>
 # include "sha512.hh"
+# include <exception>
 
 #define ERR_JOIN	"<strong>[admin] : specify the channel to join\n"
 #define ERR_JOINSIZE	"<strong>[admin] : 9 character max for a channel\n"
@@ -49,9 +50,13 @@
 #define ERR_CMD		"<strong>[admin] : Command Unknown\n"
 #define ERR_LOGIN	"<strong>[admin] : /login [username] [password]\n"
 #define ERR_LOGINOPEN	"<strong>[admin] : Can't open the login file\n"
-#define UP_LOGIN	"<strong>[admin] : You're now logged\n"
+#define UP_LOGIN	"<strong>[admin] : You're now logged in\n"
+#define UP_LOGOUT	"<strong>[admin] : You're now logged out\n"
 #define ERR_LOGINFAIL	"<strong>[admin] : Username or password invalid\n"
 #define ERR_ADMINNICK	"<strong>[admin] : You're already logged as admin\n"
+#define ERR_ADMINKICK	"<strong>[admin] : /kick [nickname] [reason]\n"
+#define ERR_ADMINUSER	"<strong>[admin] : The user doesn't exist\n"
+#define UP_ADMINKICK	"<strong>[admin] : The user has been kicked\n"
 
 enum Command
   {
@@ -61,7 +66,9 @@ enum Command
     LIST = 3,
     NICK = 4,
     MSG = 5,
-    LOGIN = 6
+    LOGIN = 6,
+    KICK = 7,
+    LOGOUT = 8
   };
 
 typedef struct	s_server
@@ -80,6 +87,8 @@ public:
   Server();
   ~Server();
   void			loop();
+  void			deleteAllFd();
+  void			closeServerFd();
 
 private:
   void			initServer();
@@ -97,21 +106,25 @@ private:
   void			list(std::string&, t_server&);
   void			nick(std::string&, t_server&);
   void			msg(std::string&, t_server&);
-  void		        login(std::string&, t_server&);
-  void		        findUser(std::string&, std::string&, t_server&);
+  void			login(std::string&, t_server&);
+  void			findUser(std::string&, std::string&, t_server&);
+  void			kick(std::string&, t_server&);
+  void			logout(std::string&, t_server&);
 
 private:
-  struct sockaddr_in    _sin;
-  struct sockaddr_in    _client_sin;
+  struct sockaddr_in	_sin;
+  struct sockaddr_in	_client_sin;
   struct timeval	_tv;
-  int                   _serverfd;
-  socklen_t             _client_len;
-  int                   _clientfd;
-  fd_set                _readfd;
+  int			_serverfd;
+  socklen_t		_client_len;
+  int			_clientfd;
+  fd_set		_readfd;
   std::vector<t_server>	_server;
   std::vector<std::string> _option;
   int			_count;
   std::map<int, void (Server::*)(std::string&, t_server&)> _ptr;
 };
+
+void			sighandle(int i);
 
 #endif /* !SERVER_HH_ */
