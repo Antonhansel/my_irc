@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Sat Apr 19 16:43:54 2014 Mehdi Chouag
-// Last update Sun Apr 20 00:00:28 2014 Mehdi Chouag
+// Last update Sun Apr 20 00:43:08 2014 Mehdi Chouag
 //
 
 #include "Server.hh"
@@ -61,6 +61,7 @@ void	Server::findUser(std::string &username, std::string &password, t_server &s)
   std::vector<std::string> user;
   std::vector<std::string> pass;
   std::string tmp;
+  bool		isConnect;
 
   password = sha512(password); 
   if (!file)
@@ -74,8 +75,11 @@ void	Server::findUser(std::string &username, std::string &password, t_server &s)
 	  user.push_back(tmp.substr(0, tmp.find_first_of(":")));
 	  pass.push_back(tmp.substr(tmp.find_first_of(":") + 2, std::string::npos));
 	}
+      for (size_t z(0); z != _server.size(); z++)
+        if (_server[z].nick == username)
+	  isConnect = true;
       for (size_t i(0); i != user.size(); i++)
-	  if (username == user[i] && pass[i] == password)
+	  if (username == user[i] && pass[i] == password && !isConnect)
 	    s.isAdmin = true;
       if (s.isAdmin)
 	{
@@ -85,6 +89,8 @@ void	Server::findUser(std::string &username, std::string &password, t_server &s)
 	  std::cout << "\033[32;1mThe admin " << s.nick << " just logged in";
 	  std::cout << "\033[0m" << std::endl;
 	}
+      else if (isConnect)
+	send(s.fd, ERR_LOGINCON, strlen(ERR_LOGINCON), 0);
       else
 	send(s.fd, ERR_LOGINFAIL, strlen(ERR_LOGINFAIL), 0);
     }
@@ -106,7 +112,7 @@ void	Server::kick(std::string &buff, t_server &s)
   else
     {
       for (size_t i(0); i != _server.size(); i++)
-	if (_server[i].nick == username)
+	if (_server[i].nick == username && username != s.nick)
 	  {
 	    std::cout << "\033[31;1m" << _server[i].nick << " has been kicked by ";
 	    std::cout << s.nick << "\033[0m" << std::endl;
@@ -118,10 +124,12 @@ void	Server::kick(std::string &buff, t_server &s)
 	  }
       if (isKicked)
 	send(s.fd, UP_ADMINKICK, strlen(UP_ADMINKICK), 0);
+      else if (username == s.nick)
+	send(s.fd, ERR_ADMINKICK2, strlen(ERR_ADMINKICK2), 0);
       else
 	send(s.fd, ERR_ADMINUSER, strlen(ERR_ADMINUSER), 0);
+      deleteFd(isKicked);
     }
-  deleteFd(isKicked);
 }
 
 void	Server::logout(std::string &buff, t_server &s)

@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:22:06 2014 Mehdi Chouag
-// Last update Sun Apr 20 00:08:03 2014 Mehdi Chouag
+// Last update Sun Apr 20 00:41:43 2014 Mehdi Chouag
 //
 
 #ifndef SERVER_HH_
@@ -55,7 +55,9 @@
 #define ERR_LOGINFAIL	"<strong>[admin] : Username or password invalid\n"
 #define ERR_ADMINNICK	"<strong>[admin] : You're already logged as admin\n"
 #define ERR_ADMINKICK	"<strong>[admin] : /kick [nickname] [reason]\n"
+#define ERR_ADMINKICK2	"<strong>[admin] : You can't kick yourself\n"
 #define ERR_ADMINUSER	"<strong>[admin] : The user doesn't exist\n"
+#define ERR_LOGINCON	"<strong>[admin] : You're account is already used in an other Client\n"
 #define UP_ADMINKICK	"<strong>[admin] : The user has been kicked\n"
 
 enum Command

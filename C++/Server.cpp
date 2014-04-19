@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:14:36 2014 Mehdi Chouag
-// Last update Sat Apr 19 23:59:54 2014 Mehdi Chouag
+// Last update Sun Apr 20 00:37:22 2014 Mehdi Chouag
 //
 
 #include "Server.hh"
@@ -308,7 +308,7 @@ void		Server::readClient()
   bool		del(false);
   
   for (size_t i(0); i != _server.size(); i++)
-    if (FD_ISSET(_server[i].fd, &(_readfd)))
+    if (FD_ISSET(_server[i].fd, &(_readfd)) && !_server[i].isClose)
       {
 	memset(buff, 0, sizeof(buff));
 	if ((int)recv(_server[i].fd, buff, 4096, 0) == 0)
