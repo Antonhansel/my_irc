@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:14:36 2014 Mehdi Chouag
-// Last update Sat Apr 19 02:11:04 2014 Mehdi Chouag
+// Last update Sat Apr 19 18:42:17 2014 Mehdi Chouag
 //
 
 #include "Server.hh"
@@ -58,6 +58,7 @@ t_server	Server::addClient()
   s.nickname = "<em>Anonymous" + number.str() + "</em>";
   s.nick = "Anonymous" + number.str();
   s.isClose = false;
+  s.isAdmin = false;
   s.fd = accept(_serverfd, (struct sockaddr *)&(_client_sin), &(_client_len));
   std::cout << "\033[32;1mNew Connection from : " 
 	    << inet_ntoa(_client_sin.sin_addr);
@@ -132,8 +133,26 @@ void		Server::join(std::string &buff, t_server &s)
 
 void		Server::part(std::string &buff, t_server &s)
 {
-  (void)s;
-  std::cout << "PART : " << buff << std::endl;
+  std::string	tmp;
+
+  tmp = buff.substr(6, buff.size());
+  tmp = tmp.substr(0, tmp.find_first_of(" "));
+  if (tmp.empty())
+    send(s.fd, ERR_PART, strlen(ERR_PART), 0);
+  else if (buff.size() > 6 + tmp.size())
+    send(s.fd, "<strong>[admin] : Too many argument</strong>", 44, 0);
+  else
+    {
+      tmp = tmp.substr(0, tmp.find_first_of("\n"));
+      if (s.channel == ("<strong>" + tmp + "</strong>"))
+	{
+	  tmp = "none";
+	  s.channel = tmp;
+	  send(s.fd, UP_PART, strlen(UP_PART), 0);
+	}
+      else
+	send(s.fd, ERR_PARTCHAN, strlen(ERR_PARTCHAN), 0);
+    }
 }
 
 void		Server::users(std::string &buff, t_server &s)
@@ -144,7 +163,7 @@ void		Server::users(std::string &buff, t_server &s)
   (void)s;
   (void)buff;
   for (it = _server.begin(); it != _server.end(); ++it)
-    if (s.channel == (*it).channel)
+    if (s.channel == (*it).channel && (*it).channel != "none")
       tmp += " " + (*it).nickname;
   if (_server.size() > 0)
     send(s.fd, tmp.c_str(), tmp.size(), 0);
@@ -152,8 +171,16 @@ void		Server::users(std::string &buff, t_server &s)
 
 void		Server::list(std::string &buff, t_server &s)
 {
-  (void)s;
-  std::cout << "LIST : " << buff << std::endl;
+  std::string	tmp;
+  
+  tmp = buff.substr(6, buff.size());
+  tmp = tmp.substr(0, tmp.find_first_of(" "));
+  if (tmp.empty())
+    sendAllList(tmp, false, s);
+  else if (buff.size() > 6 + tmp.size())
+    send(s.fd, "<strong>[admin] : Too many argument</strong>", 44, 0);
+  else
+    sendAllList(tmp, true, s);
 }
 
 void		Server::nick(std::string &buff, t_server &s)
@@ -161,8 +188,7 @@ void		Server::nick(std::string &buff, t_server &s)
   std::string	tmp;
   bool		exist(false);
   std::vector<t_server>::const_iterator it;
-  size_t        size;
-  
+
   tmp = buff.substr(6, buff.size());
   tmp = tmp.substr(0, tmp.find_first_of(" "));
   if (tmp.empty() || buff.size() > 6 + tmp.size())
@@ -170,19 +196,18 @@ void		Server::nick(std::string &buff, t_server &s)
   else
     {
       tmp = tmp.substr(0, tmp.find_first_of("\n"));
-      size = tmp.size();
       s.nick = tmp;
       tmp = "<em>" + tmp + "</em>";
       std::cout << tmp << std::endl;
       for (it = _server.begin(); it != _server.end(); ++it)
 	if ((*it).nickname == tmp)
 	  exist = true;
-      if (!exist && size <= 9)
+      if (!exist && s.nick.size() <= 9)
 	{
 	  s.nickname = tmp;
 	  send(s.fd, UP_NICK, strlen(UP_NICK), 0);
 	}
-      else if (size > 9)
+      else if (s.nick.size() > 9)
 	send(s.fd, ERR_NICK, strlen(ERR_NICK), 0);
       else
 	send(s.fd, ERR_NICKUSED, strlen(ERR_NICKUSED), 0);
@@ -191,10 +216,30 @@ void		Server::nick(std::string &buff, t_server &s)
 
 void		Server::msg(std::string &buff, t_server &s)
 {
-  (void)s;
-  std::cout << "MSG : " << buff << std::endl;
-}
+  std::string	nickname;
+  std::string	message;
+  std::vector<t_server>::const_iterator it;  
+  bool		exist(false);
 
+  nickname = buff.substr(5, buff.size());
+  message = nickname.substr(nickname.find_first_of(" ") + 1, std::string::npos);
+  nickname = nickname.substr(0, nickname.find_first_of(" "));
+  nickname = "<em>" + nickname + "</em>";
+  if (nickname.empty() || message.empty())
+    send(s.fd, ERR_MSG, strlen(ERR_MSG), 0);
+  else
+    {
+      message = "<strong>[Private message]</strong> " + nickname + ": " + message;
+      for (it = _server.begin(); it != _server.end(); ++it)
+	if ((*it).nickname == nickname)
+	  {
+	    send((*it).fd, message.c_str(), message.size(), 0);
+	    exist = true;
+	  }
+      if (!exist)
+	send(s.fd, ERR_MSGUSER, strlen(ERR_MSGUSER), 0);
+    }
+}
 
 bool		Server::checkCommand(std::string buff, t_server &s)
 {
@@ -271,5 +316,6 @@ void		Server::loop()
 	readClient();
       usleep(1000);
     }
+  perror("Select ");
   std::cout << "Exiting the Loop" << std::endl;
 }

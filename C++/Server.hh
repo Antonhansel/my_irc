@@ -5,7 +5,7 @@
 // Login   <chouag_m@epitech.net>
 // 
 // Started on  Fri Apr 18 18:22:06 2014 Mehdi Chouag
-// Last update Sat Apr 19 02:05:25 2014 Mehdi Chouag
+// Last update Sat Apr 19 18:41:43 2014 Mehdi Chouag
 //
 
 #ifndef SERVER_HH_
@@ -63,6 +63,7 @@ typedef struct	s_server
   std::string	nickname;
   std::string	nick;
   bool		isClose;
+  bool		isAdmin;
 }		t_server;
 
 class Server
@@ -81,6 +82,7 @@ private:
   void			deleteFd(bool);
   bool			checkCommand(std::string, t_server&);
   void			sendMessage(std::string, t_server&);
+  void			sendAllList(std::string &, bool, t_server&);
   void			join(std::string&, t_server&);
   void			part(std::string&, t_server&);
   void			users(std::string&, t_server&);

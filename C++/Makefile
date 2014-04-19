@@ -5,11 +5,12 @@
 ## Login   <aube_a@epitech.net>
 ## 
 ## Started on  Tue Mar 18 23:25:23 2014 Mehdi Chouag
-## Last update Sat Apr 19 02:16:27 2014 Mehdi Chouag
+## Last update Sat Apr 19 16:51:10 2014 Mehdi Chouag
 ##
 
 SRCS		= main.cpp \
-		  Server.cpp
+		  Server.cpp \
+		  function.cpp \
 
 OBJ2		= $(SRCS:.cpp=.o)
 
